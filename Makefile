@@ -2,7 +2,7 @@
 
 KSPDIR	:= ${HOME}/.local/share/Steam/steamapps/common/Kerbal Space Program
 MANAGED	:= ${KSPDIR}/KSP_Data/Managed/
-LTPFILES := src/Extensions.cs \
+SRCFILES := src/Extensions.cs \
 	src/SolarSailPart.cs \
 	src/Utils.cs \
 	src/LowThrustEngine.cs
@@ -22,14 +22,14 @@ info:
 
 build: build/PersistentThrust.dll
 
-build/%.dll: ${LTPFILES}
+build/%.dll: ${SRCFILES}
 	mkdir -p build
 	${GMCS} -t:library -lib:"${MANAGED}" -lib:"${MECHJEB}" \
 		-r:Assembly-CSharp,Assembly-CSharp-firstpass,UnityEngine \
 		-out:$@ \
-		${LTPFILES}
+		${SRCFILES}
 
-package: build ${LTPFILES}
+package: build ${SRCFILES}
 	mkdir -p package/PersistentThrust/Plugins
 	cp -r Parts package/PersistentThrust/
 	cp -r Patches package/PersistentThrust/
