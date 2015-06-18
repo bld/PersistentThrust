@@ -1,12 +1,10 @@
 * DONE Save current throttle and Isp to other variables
-* TODO During timewarp, perturb orbit and mass based on saved throttle and Isp [0/3]
-** TODO Perturb orbit
-** TODO Perturb mass
+* TODO During timewarp, perturb orbit and mass based on saved throttle and Isp [2/3]
+** DONE Perturb orbit
+** DONE Perturb mass
 ** TODO Perturb energy
-* TODO Fall out of timewarp and shutdown engine when mass flow would empty tanks
-* TODO Fall out of timewarp and shutdown engine when energy consumption exceeds generation
-* TODO Calculate energy consumption by low thrust engines
-* TODO Calculate energy generation by power systems
+* DONE Look up energy consumption
+* DONE Look up mass consumption
 * DONE Format thrust in more readable form [3/3]
 ** DONE mN when < 1 N
 ** DONE N when < 1000 N
