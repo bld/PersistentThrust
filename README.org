@@ -1,0 +1,5 @@
+* PersistentThrust
+A plugin for [[http://www.kerbalspaceprogram.com][Kerbal Space Program]] to allow low thrust propulsion systems like ion engines and solar sails to operate during time warp.
+
+** Requirements
+- [[http://forum.kerbalspaceprogram.com/threads/55219-Module-Manager-1-5-6-%28Jan-6%29][ModuleManager]]
