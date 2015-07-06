@@ -35,6 +35,11 @@ namespace PersistentThrust {
 	public string resourceDeltaV;
 	// Density of resource
 	double density;
+	// Propellant
+	Propellant prop;
+
+	// Resources not used for deltaV
+	Propellant[] propOther;
 	
 	// Update
 	public override void OnUpdate() {
@@ -65,6 +70,32 @@ namespace PersistentThrust {
 	    // Initialize density of propellant used in deltaV and mass calculations
 	    density = PartResourceLibrary.Instance.GetDefinition(resourceDeltaV).density;
 	}
+
+	public override void OnStart(StartState state) {
+
+	    // Save propellant used for deltaV and those that aren't
+	    if (state != StartState.None && state != StartState.Editor) {
+		propOther = new Propellant[propellants.Count - 1];
+		var i = 0;
+		foreach (var p in propellants) {
+		    if (p.name == resourceDeltaV) {
+			prop = p;
+		    } else {
+			propOther[i] = p;
+			i++;
+		    }
+		}
+
+		Debug.Log(prop.name + " " + prop.ratio + " " + prop.id);
+		foreach (var po in propOther) {
+		    Debug.Log(po.name + " " + po.ratio + " " + po.id);
+		}
+	    }
+
+	    // Run base OnStart method
+	    base.OnStart(state);
+	}
+	
 	
 	// Physics update
 	public override void OnFixedUpdate() {
@@ -89,6 +120,14 @@ namespace PersistentThrust {
 		    double demand = dm / density; // Resource demand
 		    // Update vessel resource
 		    double demandOut = part.RequestResource(resourceDeltaV, demand);
+
+		    // Calculate demand of other resources
+		    foreach (var p in propOther) {
+			var demandOther = demand * p.ratio / prop.ratio;
+			var demandOutOther = part.RequestResource(p.id, demandOther);
+			Debug.Log("DemandOutOther: " + demandOutOther);
+		    }
+		    
 		    // Calculate thrust and deltaV if demand output > 0
 		    // TODO test if dm exceeds remaining propellant mass
 		    if (demandOut > 0) {
