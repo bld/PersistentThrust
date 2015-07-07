@@ -118,19 +118,30 @@ namespace PersistentThrust {
 		    double mdot = ThrustPersistent / (IspPersistent * 9.81); // Mass burn rate of engine
 		    double dm = mdot * dT; // Change in mass over dT
 		    double demand = dm / density; // Resource demand
+		    bool depleted = false; // Check if resources depleted
+		    
 		    // Update vessel resource
 		    double demandOut = part.RequestResource(resourceDeltaV, demand);
+		    // Resource depleted if demandOut = 0 & demand was > demandOut
+		    if (demand > 0 && demandOut == 0) {
+			depleted = true;
+		    } // Revise dm if demandOut < demand
+		    else if (demand > 0 && demand > demandOut) {
+			dm = demandOut * density;
+		    }
 
 		    // Calculate demand of other resources
 		    foreach (var p in propOther) {
-			var demandOther = demand * p.ratio / prop.ratio;
+			var demandOther = demandOut * p.ratio / prop.ratio;
 			var demandOutOther = part.RequestResource(p.id, demandOther);
-			Debug.Log("DemandOutOther: " + demandOutOther);
+			// Depleted if any resource 
+			if (demandOther > 0 && demandOutOther == 0) {
+			    depleted = true;
+			}
 		    }
 		    
 		    // Calculate thrust and deltaV if demand output > 0
-		    // TODO test if dm exceeds remaining propellant mass
-		    if (demandOut > 0) {
+		    if (!depleted) {
 			double m1 = m0 - dm; // Mass at end of burn
 			double deltaV = IspPersistent * 9.81 * Math.Log(m0/m1); // Delta V from burn
 			Vector3d thrustV = this.part.transform.up; // Thrust direction
@@ -140,6 +151,8 @@ namespace PersistentThrust {
 		    // Otherwise, if throttle is turned on, and demand out is 0, show warning
 		    else if (ThrottlePersistent > 0) {
 			Debug.Log("Propellant depleted");
+			// Return to realtime mode
+			TimeWarp.SetRate(0, true);
 		    }
 		}
 
