@@ -1,11 +1,14 @@
 * DONE Save current throttle and Isp to other variables
-* TODO During timewarp, perturb orbit and mass based on saved throttle and Isp [2/3]
+* DONE During timewarp, perturb orbit and mass based on saved throttle and Isp [3/3]
 ** DONE Perturb orbit
 ** DONE Perturb mass
-** TODO Perturb energy
+** DONE Perturb other resources (e.g. energy)
 * DONE Look up energy consumption
 * DONE Look up mass consumption
 * DONE Format thrust in more readable form [3/3]
 ** DONE mN when < 1 N
 ** DONE N when < 1000 N
 ** DONE kN when < 1000000 N
+* DONE Drop out of timewarp on depletion of any resource
+* TODO Scale energy to more realistic amount
+* DONE Show resource consumption

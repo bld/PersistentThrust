@@ -16,7 +16,13 @@ namespace PersistentThrust {
 	// Throttle
 	[KSPField(guiActive = true, guiName = "Throttle")]
 	protected string Throttle = "";
-
+	// Propellant Usage
+	[KSPField(guiActive = true, guiName = "")]
+	protected string PropellantUse = "";
+	// Other resource usage
+	[KSPField(guiActive = true, guiName = "")]
+	protected string ResourceUse = "";
+	
 	// Numeric display values
 	protected double thrust_d = 0;
 	protected double isp_d = 0;
@@ -54,6 +60,8 @@ namespace PersistentThrust {
 	    Fields["Thrust"].guiActive = isEnabled;
 	    Fields["Isp"].guiActive = isEnabled;
 	    Fields["Throttle"].guiActive = isEnabled;
+	    Fields["PropellantUse"].guiActive = isEnabled;
+	    Fields["ResourceUse"].guiActive = isEnabled;
 
 	    // Update display values
 	    Thrust = Utils.FormatThrust(thrust_d);
@@ -86,6 +94,22 @@ namespace PersistentThrust {
 		    }
 		}
 
+		// Rename GUI name to propellant used for DeltaV
+		Fields["PropellantUse"].guiName = resourceDeltaV + " use";
+
+		// Name ResourceUse GUI to other resources
+		Fields["ResourceUse"].guiName = "";
+		foreach(var p in propOther) {
+		    // If multiple resources, put | between them
+		    if (Fields["ResourceUse"].guiName != String.Empty) {
+			Fields["ResourceUse"].guiName += "|";
+		    }
+		    // Add name of resource
+		    Fields["ResourceUse"].guiName += p.name;
+		}
+		// Add "use" to the end
+		Fields["ResourceUse"].guiName += " use";
+		
 		Debug.Log(prop.name + " " + prop.ratio + " " + prop.id);
 		foreach (var po in propOther) {
 		    Debug.Log(po.name + " " + po.ratio + " " + po.id);
@@ -99,8 +123,10 @@ namespace PersistentThrust {
 	
 	// Physics update
 	public override void OnFixedUpdate() {
-
 	    if (FlightGlobals.fetch != null && isEnabled) {
+		// Time step size
+		double dT = TimeWarp.fixedDeltaTime;
+
 		// Realtime mode
 		if (!this.vessel.packed) {
 		    // if not transitioning from warp to real
@@ -109,11 +135,21 @@ namespace PersistentThrust {
 			IspPersistent = realIsp;
 			ThrottlePersistent = vessel.ctrlState.mainThrottle;
 			ThrustPersistent = this.CalculateThrust();
+			// Update displayed propellant use
+			PropellantUse = (prop.currentAmount / dT).ToString("E3") + " U/s";
+			// Update non-propulsive resources
+			ResourceUse = "";
+			foreach (var p in propOther) {
+			    if (ResourceUse != String.Empty) {
+				ResourceUse += "|";
+			    }
+			    ResourceUse += (p.currentAmount / dT).ToString("E3");
+			}
+			ResourceUse += " U/s";
 		    }
 		} else { // Timewarp mode: perturb orbit using thrust
 		    warpToReal = true; // Set to true for transition to realtime
 		    double UT = Planetarium.GetUniversalTime(); // Universal time
-		    double dT = TimeWarp.fixedDeltaTime; // Time step size
 		    double m0 = this.vessel.GetTotalMass(); // Current mass
 		    double mdot = ThrustPersistent / (IspPersistent * 9.81); // Mass burn rate of engine
 		    double dm = mdot * dT; // Change in mass over dT
@@ -122,6 +158,10 @@ namespace PersistentThrust {
 		    
 		    // Update vessel resource
 		    double demandOut = part.RequestResource(resourceDeltaV, demand);
+
+		    // Update displayed demand
+		    PropellantUse = (demandOut / dT).ToString("E3");
+
 		    // Resource depleted if demandOut = 0 & demand was > demandOut
 		    if (demand > 0 && demandOut == 0) {
 			depleted = true;
@@ -131,6 +171,8 @@ namespace PersistentThrust {
 		    }
 
 		    // Calculate demand of other resources
+		    // Update displayed values of usage rate
+		    ResourceUse = "";
 		    foreach (var p in propOther) {
 			var demandOther = demandOut * p.ratio / prop.ratio;
 			var demandOutOther = part.RequestResource(p.id, demandOther);
@@ -138,7 +180,13 @@ namespace PersistentThrust {
 			if (demandOther > 0 && demandOutOther == 0) {
 			    depleted = true;
 			}
+			// Update displayed resource use
+			if (ResourceUse != String.Empty) {
+			    ResourceUse += "|";
+			}
+			ResourceUse += (demandOutOther / dT).ToString("E3");
 		    }
+		    ResourceUse += " U/s";
 		    
 		    // Calculate thrust and deltaV if demand output > 0
 		    if (!depleted) {
