@@ -6,13 +6,12 @@ systems like ion engines and solar sails to operate during time warp.
 - [[http://forum.kerbalspaceprogram.com/threads/55219-Module-Manager-1-5-6-%28Jan-6%29][ModuleManager]]
 
 ** What works
-- Ion engine and solar sail continue thrusting during realtime and timewarp
-- Ion engine propellant mass depleted during timewarp
-- Ion engine throttle stays from realtime to timewarp and back
+- Continuous thrust engines and solar sail continue thrusting during realtime and timewarp
+- Continuous thrust engine propellant mass and other resources depleted during timewarp
+- Continuous thrust engine throttle stays set from realtime to timewarp and back
 
 ** What doesn't work
-- No accounting for energy usage by ion engine during timewarp
-- Ion engine throttle and sail attitude can't be changed during timewarp
+- Continuous thrust engine throttle and sail attitude can't be changed during timewarp
 
 ** Navigation
 A companion project is under development to plan and preview low
