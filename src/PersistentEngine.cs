@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace PersistentThrust {
 
-    public class LowThrustEngine : ModuleEngines {
+    public class PersistentEngine : ModuleEngines {
 
 	// GUI display values
 	// Thrust
