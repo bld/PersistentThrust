@@ -29,9 +29,9 @@ namespace PersistentThrust {
 	protected double throttle_d = 0;
 	
 	// Persistent values to use during timewarp
-	float IspPersistent = 0;
-	float ThrustPersistent = 0;
-	float ThrottlePersistent = 0;
+	public float IspPersistent = 0;
+	public float ThrustPersistent = 0;
+	public float ThrottlePersistent = 0;
 
 	// Are we transitioning from timewarp to reatime?
 	bool warpToReal = false;
@@ -119,8 +119,7 @@ namespace PersistentThrust {
 	    // Run base OnStart method
 	    base.OnStart(state);
 	}
-	
-	
+
 	// Physics update
 	public override void OnFixedUpdate() {
 	    if (FlightGlobals.fetch != null && isEnabled) {
@@ -160,7 +159,7 @@ namespace PersistentThrust {
 		    double demandOut = part.RequestResource(resourceDeltaV, demand);
 
 		    // Update displayed demand
-		    PropellantUse = (demandOut / dT).ToString("E3");
+		    PropellantUse = (demandOut / dT).ToString("E3") + " U/s";
 
 		    // Resource depleted if demandOut = 0 & demand was > demandOut
 		    if (demand > 0 && demandOut == 0) {
@@ -209,6 +208,18 @@ namespace PersistentThrust {
 		isp_d = IspPersistent;
 		throttle_d = ThrottlePersistent;
 	    }
+	}
+
+	// Simulated deltaV and resource use calculation
+	// Used for navigation predictions. Also updates m1.
+	public static Vector3d CalculateDeltaV (PersistentEngine engine, double dT, float thrust, float isp, double m0, Vector3d up, double m1) {
+	    Debug.Log("Calculate DeltaV");
+	    double mdot = thrust / (isp * 9.81);
+	    double dm = mdot * dT;
+	    m1 = m0 - dm;
+	    double deltaV = isp * 9.81 * Math.Log(m0 / m1);
+	    Vector3d deltaVV = deltaV * up;
+	    return deltaVV;
 	}
     }
 }
