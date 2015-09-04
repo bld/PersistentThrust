@@ -4,8 +4,12 @@ using UnityEngine;
 
 namespace PersistentThrust {
 
-    public class PersistentEngine : ModuleEngines {
+    public class PersistentEngine : ModuleEnginesFX {
 
+	// Flag to activate force if it isn't to allow overriding stage activation
+	[KSPField(isPersistant = true)]
+	bool IsForceActivated;
+	
 	// GUI display values
 	// Thrust
 	[KSPField(guiActive = true, guiName = "Thrust")]
@@ -67,6 +71,13 @@ namespace PersistentThrust {
 	    Thrust = Utils.FormatThrust(thrust_d);
 	    Isp = Math.Round(isp_d, 2).ToString() + " s";
 	    Throttle = Math.Round(throttle_d * 100).ToString() + "%";
+
+	    // Activate force if engine is enabled and operational
+	    if (!IsForceActivated && isEnabled && isOperational)
+	    {
+		IsForceActivated = true;
+		part.force_activate();
+	    }
 	}
 
 	// Initialization
@@ -131,9 +142,14 @@ namespace PersistentThrust {
 		    // if not transitioning from warp to real
 		    // Update values to use during timewarp
 		    if (!warpToReal) {
+			// Update thrust calculation
+			this.CalculateThrust();
+			// Get Isp
 			IspPersistent = realIsp;
+			// Get throttle
 			ThrottlePersistent = vessel.ctrlState.mainThrottle;
-			ThrustPersistent = this.CalculateThrust();
+			// Get final thrust
+			ThrustPersistent = this.finalThrust;
 			// Update displayed propellant use
 			PropellantUse = (prop.currentAmount / dT).ToString("E3") + " U/s";
 			// Update non-propulsive resources
@@ -146,7 +162,10 @@ namespace PersistentThrust {
 			}
 			ResourceUse += " U/s";
 		    }
-		} else { // Timewarp mode: perturb orbit using thrust
+		}
+		// Timewarp mode: perturb orbit using thrust
+		else if (part.vessel.situation != Vessel.Situations.SUB_ORBITAL)
+		{
 		    warpToReal = true; // Set to true for transition to realtime
 		    double UT = Planetarium.GetUniversalTime(); // Universal time
 		    double m0 = this.vessel.GetTotalMass(); // Current mass
@@ -174,16 +193,21 @@ namespace PersistentThrust {
 		    ResourceUse = "";
 		    foreach (var p in propOther) {
 			var demandOther = demandOut * p.ratio / prop.ratio;
+			// TODO Fix resource depletion at high timewarp
+			/*
 			var demandOutOther = part.RequestResource(p.id, demandOther);
 			// Depleted if any resource 
 			if (demandOther > 0 && demandOutOther == 0) {
 			    depleted = true;
 			}
+			*/
 			// Update displayed resource use
 			if (ResourceUse != String.Empty) {
 			    ResourceUse += "|";
 			}
-			ResourceUse += (demandOutOther / dT).ToString("E3");
+			// ResourceUse += (demandOutOther / dT).ToString("E3");
+			// Temporarily show demandOther, not demandOutOther
+			ResourceUse += (demandOther / dT).ToString("E3");
 		    }
 		    ResourceUse += " U/s";
 		    
@@ -202,6 +226,13 @@ namespace PersistentThrust {
 			TimeWarp.SetRate(0, true);
 		    }
 		}
+		// Otherwise suborbital - set throttle to 0 and show error message.
+		// TODO fix persistent thrust orbit perturbation on suborbital trajectory.
+		else if (vessel.ctrlState.mainThrottle > 0)
+		{
+		    vessel.ctrlState.mainThrottle = 0;
+		    ScreenMessages.PostScreenMessage("Cannot accelerate and timewarp durring sub orbital spaceflight!", 5.0f, ScreenMessageStyle.UPPER_CENTER);
+		}
 
 		// Update display numbers
 		thrust_d = ThrustPersistent;
@@ -213,7 +244,6 @@ namespace PersistentThrust {
 	// Simulated deltaV and resource use calculation
 	// Used for navigation predictions. Also updates m1.
 	public static Vector3d CalculateDeltaV (PersistentEngine engine, double dT, float thrust, float isp, double m0, Vector3d up, double m1) {
-	    Debug.Log("Calculate DeltaV");
 	    double mdot = thrust / (isp * 9.81);
 	    double dm = mdot * dT;
 	    m1 = m0 - dm;
