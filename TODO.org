@@ -15,25 +15,6 @@
 * DONE Test if this works for multiple engines and sails [2/2]
 ** DONE Multiple engines
 ** DONE Multiple sails
-* TODO Bug: At time warps >= 100X, energy use doesn't balance with sample craft
-** Sample craft: 1 ion engine, 2 gigantor XL solar arrays, Z-200 battery
-** 5% throttle
-** At 100x and 1000x, batteries a little low
-** At 1000x, batteries ~50%
-** At max warp, batteries deplete, but vessel doesn't shutdown
-* TODO Use one or more deltaV propellants [0/2] 			:BUG:
-** TODO Iterate over list of deltaV propellants and calculate demand and deltaV
-** TODO Automatically detect which propellants contribute to deltaV
-*** Do they have density units?
-* TODO With solar electric ion engine spacecraft, batteries deplete in high timewarp, even though the panels generate enough ElectricCharge [1/2] :BUG:
-** DONE Temporarily bypass by turning off resource request and depletion
-** TODO Fix
-* TODO In timewarp, persistent engines lower a suborbital engine when they should be raising it [0/2] :BUG:
-** TODO Temporary fix: throw error message when suborbital & in timewarp, don't perturb orbit
-** TODO Make it work
-* TODO Make TweakScale work with parts [0/2]			    :FEATURE:
-** TODO Solar sail
-** TODO Ion engine
 * TODO Realistic sail attitude control				   :WISHLIST:
 ** Vanes to cause solar torque about CM
 ** Gimbaled boom to shift CM
@@ -53,3 +34,21 @@
 *** Animated rotation
 **** Scale rotation speed to sensible amount during time warp
 *** Animate change in reflective control device color as it performs attitude maneuvers
+* TODO Make TweakScale work with parts [0/2]			    :FEATURE:
+** TODO Solar sail
+** TODO Ion engine
+* TODO With solar electric ion engine spacecraft, batteries deplete in high timewarp, even though the panels generate enough ElectricCharge [1/2] :BUG:
+** DONE Temporarily bypass by turning off resource request and depletion
+** TODO Fix
+** Sample craft: 1 ion engine, 2 gigantor XL solar arrays, Z-200 battery
+** 5% throttle
+** At 100x and 1000x, batteries a little low
+** At 1000x, batteries ~50%
+** At max warp, batteries deplete, but vessel doesn't shutdown
+* TODO In timewarp, persistent engines lower a suborbital engine when they should be raising it [0/2] :BUG:
+** TODO Temporary fix: throw error message when suborbital & in timewarp, don't perturb orbit
+** TODO Make it work
+* TODO Use one or more deltaV propellants [0/2] 			:BUG:
+** TODO Iterate over list of deltaV propellants and calculate demand and deltaV
+** TODO Automatically detect which propellants contribute to deltaV
+*** Do they have density units?
