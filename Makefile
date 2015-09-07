@@ -5,6 +5,7 @@ MANAGED	:= ${KSPDIR}/KSP_Data/Managed/
 SRCFILES := src/Extensions.cs \
 	src/SolarSailPart.cs \
 	src/Utils.cs \
+	src/Propellant.cs \
 	src/PersistentEngine.cs
 GMCS	:= gmcs
 TAR	:= tar
