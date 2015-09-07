@@ -102,22 +102,33 @@ namespace PersistentThrust {
 		
 		double sunlightFactor = 1.0;
 
+		// Not in sunlight
 		if (!inSun(vessel.orbit, UT)) {
 		    sunlightFactor = 0.0;
+		    solar_force_d = 0.0;
+		    solar_acc_d = 0.0;
 		}
+		// If in sunlight
+		else {
+		    // Force from sunlight
+		    Vector3d solarForce = CalculateSolarForce(this, vessel.orbit, this.part.transform.up, UT) * sunlightFactor;
+		    // Acceleration from sunlight
+		    Vector3d solarAccel = solarForce / vessel.GetTotalMass() / 1000.0;
 
-		Vector3d solarForce = CalculateSolarForce(this, vessel.orbit, this.part.transform.up, UT) * sunlightFactor;
+		    // Apply acceleration
+		    // Realtime
+		    if (!this.vessel.packed) {
+			vessel.ChangeWorldVelocity(solarAccel * dT);
+		    }
+		    // Timewarp
+		    else {
+			vessel.orbit.Perturb(solarAccel * dT, UT, dT);
+		    }
 
-		Vector3d solarAccel = solarForce / vessel.GetTotalMass() / 1000.0;
-
-		if (!this.vessel.packed) {
-		    vessel.ChangeWorldVelocity(solarAccel * dT);
-		} else {
-		    vessel.orbit.Perturb(solarAccel * dT, UT, dT);
+		    // Update displayed force & acceleration
+		    solar_force_d = solarForce.magnitude;
+		    solar_acc_d = solarAccel.magnitude;
 		}
-
-		solar_force_d = solarForce.magnitude;
-		solar_acc_d = solarAccel.magnitude;
 	    }
 	}
 
