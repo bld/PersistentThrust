@@ -1,14 +1,20 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
 namespace PersistentThrust {
-
+    
     public class PersistentEngine : ModuleEnginesFX {
 
 	// Flag to activate force if it isn't to allow overriding stage activation
 	[KSPField(isPersistant = true)]
 	bool IsForceActivated;
+	// Flag whether to request massless resources
+	public bool RequestPropMassless = false;
+	// Flag whether to request resources with mass
+	public bool RequestPropMass = true;
 	
 	// GUI display values
 	// Thrust
@@ -20,12 +26,6 @@ namespace PersistentThrust {
 	// Throttle
 	[KSPField(guiActive = true, guiName = "Throttle")]
 	protected string Throttle = "";
-	// Propellant Usage
-	[KSPField(guiActive = true, guiName = "")]
-	protected string PropellantUse = "";
-	// Other resource usage
-	[KSPField(guiActive = true, guiName = "")]
-	protected string ResourceUse = "";
 	
 	// Numeric display values
 	protected double thrust_d = 0;
@@ -40,17 +40,11 @@ namespace PersistentThrust {
 	// Are we transitioning from timewarp to reatime?
 	bool warpToReal = false;
 
-	// Resource used for deltaV and mass calculations
-	[KSPField]
-	public string resourceDeltaV;
-	// Density of resource
-	double density;
-	// Propellant
-	Propellant prop;
+	// Propellant data
+	public List<PersistentPropellant> pplist;
+	// Average density of propellants
+	double densityAverage;
 
-	// Resources not used for deltaV
-	Propellant[] propOther;
-	
 	// Update
 	public override void OnUpdate() {
 
@@ -64,8 +58,6 @@ namespace PersistentThrust {
 	    Fields["Thrust"].guiActive = isEnabled;
 	    Fields["Isp"].guiActive = isEnabled;
 	    Fields["Throttle"].guiActive = isEnabled;
-	    Fields["PropellantUse"].guiActive = isEnabled;
-	    Fields["ResourceUse"].guiActive = isEnabled;
 
 	    // Update display values
 	    Thrust = Utils.FormatThrust(thrust_d);
@@ -86,49 +78,23 @@ namespace PersistentThrust {
 	    // Run base OnLoad method
 	    base.OnLoad(node);
 
+	    // Initialize PersistentPropellant list
+	    pplist = PersistentPropellant.MakeList(propellants);
+
 	    // Initialize density of propellant used in deltaV and mass calculations
-	    density = PartResourceLibrary.Instance.GetDefinition(resourceDeltaV).density;
+	    densityAverage = pplist.AverageDensity();
 	}
 
-	public override void OnStart(StartState state) {
-
-	    // Save propellant used for deltaV and those that aren't
-	    if (state != StartState.None && state != StartState.Editor) {
-		propOther = new Propellant[propellants.Count - 1];
-		var i = 0;
-		foreach (var p in propellants) {
-		    if (p.name == resourceDeltaV) {
-			prop = p;
-		    } else {
-			propOther[i] = p;
-			i++;
-		    }
-		}
-
-		// Rename GUI name to propellant used for DeltaV
-		Fields["PropellantUse"].guiName = resourceDeltaV + " use";
-
-		// Name ResourceUse GUI to other resources
-		Fields["ResourceUse"].guiName = "";
-		foreach(var p in propOther) {
-		    // If multiple resources, put | between them
-		    if (Fields["ResourceUse"].guiName != String.Empty) {
-			Fields["ResourceUse"].guiName += "|";
-		    }
-		    // Add name of resource
-		    Fields["ResourceUse"].guiName += p.name;
-		}
-		// Add "use" to the end
-		Fields["ResourceUse"].guiName += " use";
-		
-		Debug.Log(prop.name + " " + prop.ratio + " " + prop.id);
-		foreach (var po in propOther) {
-		    Debug.Log(po.name + " " + po.ratio + " " + po.id);
-		}
-	    }
-
-	    // Run base OnStart method
-	    base.OnStart(state);
+	void UpdatePersistentParameters () {
+	    // Update values to use during timewarp
+	    // Update thrust calculation
+	    this.CalculateThrust();
+	    // Get Isp
+	    IspPersistent = realIsp;
+	    // Get throttle
+	    ThrottlePersistent = vessel.ctrlState.mainThrottle;
+	    // Get final thrust
+	    ThrustPersistent = this.finalThrust;
 	}
 
 	// Physics update
@@ -136,81 +102,41 @@ namespace PersistentThrust {
 	    if (FlightGlobals.fetch != null && isEnabled) {
 		// Time step size
 		double dT = TimeWarp.fixedDeltaTime;
-
+		
 		// Realtime mode
 		if (!this.vessel.packed) {
-		    // if not transitioning from warp to real
-		    // Update values to use during timewarp
+		    // Update persistent thrust parameters if NOT transitioning from warp to realtime
 		    if (!warpToReal) {
-			// Update thrust calculation
-			this.CalculateThrust();
-			// Get Isp
-			IspPersistent = realIsp;
-			// Get throttle
-			ThrottlePersistent = vessel.ctrlState.mainThrottle;
-			// Get final thrust
-			ThrustPersistent = this.finalThrust;
-			// Update displayed propellant use
-			PropellantUse = (prop.currentAmount / dT).ToString("E3") + " U/s";
-			// Update non-propulsive resources
-			ResourceUse = "";
-			foreach (var p in propOther) {
-			    if (ResourceUse != String.Empty) {
-				ResourceUse += "|";
-			    }
-			    ResourceUse += (p.currentAmount / dT).ToString("E3");
-			}
-			ResourceUse += " U/s";
+			UpdatePersistentParameters();
 		    }
 		}
+		
 		// Timewarp mode: perturb orbit using thrust
 		else if (part.vessel.situation != Vessel.Situations.SUB_ORBITAL)
 		{
 		    warpToReal = true; // Set to true for transition to realtime
 		    double UT = Planetarium.GetUniversalTime(); // Universal time
 		    double m0 = this.vessel.GetTotalMass(); // Current mass
-		    double mdot = ThrustPersistent / (IspPersistent * 9.81); // Mass burn rate of engine
+		    float mdot = ThrustPersistent / (IspPersistent * 9.81f); // Mass flow rate of engine
 		    double dm = mdot * dT; // Change in mass over dT
-		    double demand = dm / density; // Resource demand
+		    double demandMass = dm / densityAverage; // Resource demand for sum of massive propellants
 		    bool depleted = false; // Check if resources depleted
-		    
-		    // Update vessel resource
-		    double demandOut = part.RequestResource(resourceDeltaV, demand);
 
-		    // Update displayed demand
-		    PropellantUse = (demandOut / dT).ToString("E3") + " U/s";
-
-		    // Resource depleted if demandOut = 0 & demand was > demandOut
-		    if (demand > 0 && demandOut == 0) {
-			depleted = true;
-		    } // Revise dm if demandOut < demand
-		    else if (demand > 0 && demand > demandOut) {
-			dm = demandOut * density;
+		    // Update vessel resources if demand > 0
+		    if (demandMass > 0) {
+			foreach (var pp in pplist) {
+			    // Per propellant demand
+			    var demandProp = pp.Demand(demandMass);
+			    if ((pp.density > 0 && RequestPropMass) || (pp.density == 0 && RequestPropMassless)) {
+				var demandPropOut = part.RequestResource(pp.propellant.name, demandProp);
+				// Check if depleted
+				if (demandPropOut == 0) {
+				    depleted = true;
+				}
+			    }
+			}
 		    }
 
-		    // Calculate demand of other resources
-		    // Update displayed values of usage rate
-		    ResourceUse = "";
-		    foreach (var p in propOther) {
-			var demandOther = demandOut * p.ratio / prop.ratio;
-			// TODO Fix resource depletion at high timewarp
-			/*
-			var demandOutOther = part.RequestResource(p.id, demandOther);
-			// Depleted if any resource 
-			if (demandOther > 0 && demandOutOther == 0) {
-			    depleted = true;
-			}
-			*/
-			// Update displayed resource use
-			if (ResourceUse != String.Empty) {
-			    ResourceUse += "|";
-			}
-			// ResourceUse += (demandOutOther / dT).ToString("E3");
-			// Temporarily show demandOther, not demandOutOther
-			ResourceUse += (demandOther / dT).ToString("E3");
-		    }
-		    ResourceUse += " U/s";
-		    
 		    // Calculate thrust and deltaV if demand output > 0
 		    if (!depleted) {
 			double m1 = m0 - dm; // Mass at end of burn
@@ -239,17 +165,6 @@ namespace PersistentThrust {
 		isp_d = IspPersistent;
 		throttle_d = ThrottlePersistent;
 	    }
-	}
-
-	// Simulated deltaV and resource use calculation
-	// Used for navigation predictions. Also updates m1.
-	public static Vector3d CalculateDeltaV (PersistentEngine engine, double dT, float thrust, float isp, double m0, Vector3d up, double m1) {
-	    double mdot = thrust / (isp * 9.81);
-	    double dm = mdot * dT;
-	    m1 = m0 - dm;
-	    double deltaV = isp * 9.81 * Math.Log(m0 / m1);
-	    Vector3d deltaVV = deltaV * up;
-	    return deltaVV;
 	}
     }
 }
