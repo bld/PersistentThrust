@@ -15,6 +15,10 @@
 * DONE Test if this works for multiple engines and sails [2/2]
 ** DONE Multiple engines
 ** DONE Multiple sails
+* DONE Use one or more deltaV propellants [2/2]				:BUG:
+** DONE Iterate over list of deltaV propellants and calculate demand and deltaV
+** DONE Automatically detect which propellants contribute to deltaV
+*** Do they have density units? Yes.
 * TODO Realistic sail attitude control				   :WISHLIST:
 ** Vanes to cause solar torque about CM
 ** Gimbaled boom to shift CM
@@ -45,10 +49,20 @@
 ** At 100x and 1000x, batteries a little low
 ** At 1000x, batteries ~50%
 ** At max warp, batteries deplete, but vessel doesn't shutdown
-* TODO In timewarp, persistent engines lower a suborbital engine when they should be raising it [0/2] :BUG:
-** TODO Temporary fix: throw error message when suborbital & in timewarp, don't perturb orbit
+* TODO In timewarp, persistent engines lower a suborbital engine when they should be raising it [1/2] :BUG:
+** DONE Temporary fix: throw error message when suborbital & in timewarp, don't perturb orbit
 ** TODO Make it work
-* TODO Use one or more deltaV propellants [0/2] 			:BUG:
-** TODO Iterate over list of deltaV propellants and calculate demand and deltaV
-** TODO Automatically detect which propellants contribute to deltaV
-*** Do they have density units?
+* TODO Add GUI window that shows propellant data [0/3] 		    :FEATURE:
+** TODO Button in main GUI to toggle
+** TODO List of propellant names
+** TODO List of propellant rates
+* TODO Functions to calculate intermediate values [1/9] 	    :FEATURE:
+** DONE Update Persistent thrust data
+** TODO Mass flow rate
+** TODO Change in mass for time step dT
+** TODO Mass amount
+** TODO Calculate resource demands
+** TODO Apply resource demands
+** TODO Calculate deltaV
+** TODO Apply deltaV
+** TODO Update display data
