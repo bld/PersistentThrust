@@ -1,0 +1,20 @@
+* v1.0.1
+- SolarSailPart now just doesn't perturb the orbit when the vessel
+  isn't in the sun. No more multiplying the solar force by 0.
+- PersistentEngine now scans the propellants list of the engine,
+  generating the data needed for resource demand calculations,
+  allowing multiple propellants with mass and massless to be
+  used. PersistentPropellant class added to keep track of data and
+  perform calculations.
+- PersistentThrust is now independent of SolarSailNavigator.
+
+Thanks to FreeThinker for these fixes:
+- Orbit.Perturb() extension now directly updates current orbit from
+  current position vector and new velocity vector
+- PersistentEngine inherits ModuleEnginesFX
+- PersistentEngine operation disabled during timewarp when suborbital
+  until this is fixed.
+- Get PersistentThrust from .finalThrust attribute instead of
+  CalculateThrust().
+* v1.0.0
+- Initial release

@@ -56,13 +56,7 @@
 ** TODO Button in main GUI to toggle
 ** TODO List of propellant names
 ** TODO List of propellant rates
-* TODO Functions to calculate intermediate values [1/9] 	    :FEATURE:
-** DONE Update Persistent thrust data
-** TODO Mass flow rate
-** TODO Change in mass for time step dT
-** TODO Mass amount
-** TODO Calculate resource demands
-** TODO Apply resource demands
-** TODO Calculate deltaV
-** TODO Apply deltaV
-** TODO Update display data
+* TODO Make PersistentThrust more generic via an interface [0/3]    :FEATURE:
+** TODO IPersistentThrust interface
+** TODO Define engine module interface methods
+** TODO Define solar sail module interface methods
