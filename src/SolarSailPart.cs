@@ -122,7 +122,7 @@ namespace PersistentThrust {
 		    }
 		    // Timewarp
 		    else {
-			vessel.orbit.Perturb(solarAccel * dT, UT, dT);
+			vessel.orbit.Perturb(solarAccel * dT, UT);
 		    }
 
 		    // Update displayed force & acceleration
