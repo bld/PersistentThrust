@@ -12,7 +12,7 @@ namespace PersistentThrust {
 	}
 
 	// Perturb an orbit by a deltaV vector
-	public static void Perturb(this Orbit orbit, Vector3d deltaVV, double UT, double dT) {
+	public static void Perturb(this Orbit orbit, Vector3d deltaVV, double UT) {
 
 	    // Transpose deltaVV Y and Z to match orbit frame
 	    Vector3d deltaVV_orbit = deltaVV.xzy;
