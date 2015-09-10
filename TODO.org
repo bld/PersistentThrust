@@ -19,12 +19,18 @@
 ** DONE Iterate over list of deltaV propellants and calculate demand and deltaV
 ** DONE Automatically detect which propellants contribute to deltaV
 *** Do they have density units? Yes.
+* DONE Modularize PersistentEngine with methods used by OnFixedUpdate [5/5] :FEATURE:
+** DONE UpdatePersistentParameters
+** DONE CalculateDemands
+** DONE ApplyDemands
+** DONE CalculateDeltaVV
+** DONE ApplyDeltaVV
 * TODO Realistic sail attitude control				   :WISHLIST:
 ** Vanes to cause solar torque about CM
 ** Gimbaled boom to shift CM
 ** Realistic moments of inertia (i.e. BIG)
 ** IKAROS style thin film reflective control devices
-* TODO Make new solar sail models [0/5]
+* TODO Make new solar sail models [0/5]			   :WISHLIST:FEATURE:
 ** TODO Square sail (LightSail, Lunar Flashlight, NEA Scout)
 *** 4 triangular panels with billowed shape
 *** Wrinkled looking surface
@@ -56,7 +62,10 @@
 ** TODO Button in main GUI to toggle
 ** TODO List of propellant names
 ** TODO List of propellant rates
-* TODO Make PersistentThrust more generic via an interface [0/3]    :FEATURE:
-** TODO IPersistentThrust interface
-** TODO Define engine module interface methods
-** TODO Define solar sail module interface methods
+* TODO Test if resource wasn't fully requested (demandOut < demand) [0/6] :FEATURE:BUG:
+** TODO Test to make sure demandOut always == demand during normal operation
+** TODO Scale mass change dm to ratio of demandOut/demand
+** TODO Ensure a similar ratio of other propellants was applied
+** TODO Apply a reduced deltaV
+** TODO Flag depletion
+* TODO Do we want to calculate PersistentThrust as a function of PersistentThrottle, minThrust, and maxThrust? :FEATURE:
