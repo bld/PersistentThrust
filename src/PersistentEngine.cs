@@ -98,7 +98,7 @@ namespace PersistentThrust {
 	}
 
 	// Calculate demands of each resource
-	public double [] CalculateDemands (double demandMass) {
+	public virtual double [] CalculateDemands (double demandMass) {
 	    var demands = new double[pplist.Count];
 	    if (demandMass > 0) {
 		// Per propellant demand
@@ -111,7 +111,7 @@ namespace PersistentThrust {
 	
 	// Apply demanded resources & return results
 	// Updated depleted boolean flag if resource request failed
-	public double [] ApplyDemands (double [] demands, ref bool depleted) {
+	public virtual double [] ApplyDemands (double [] demands, ref bool depleted) {
 	    var demandsOut = new double [pplist.Count];
 	    for (var i = 0; i < pplist.Count; i++) {
 		var pp = pplist[i];
@@ -138,7 +138,7 @@ namespace PersistentThrust {
 	}
 	
 	// Calculate DeltaV vector and update resource demand from mass (demandMass)
-	public Vector3d CalculateDeltaVV (double m0, double dT, float thrust, float isp, Vector3d thrustUV, out double demandMass) {
+	public virtual Vector3d CalculateDeltaVV (double m0, double dT, float thrust, float isp, Vector3d thrustUV, out double demandMass) {
 	    // Mass flow rate
 	    var mdot = thrust / (isp * 9.81f);
 	    // Change in mass over time interval dT
@@ -151,11 +151,6 @@ namespace PersistentThrust {
 	    var deltaV = isp * 9.81f * Math.Log(m0 / m1);
 	    // Return deltaV vector
 	    return deltaV * thrustUV;
-	}
-
-	// Apply the deltaV vector at UT and dT to 
-	public static void ApplyDeltaVV (Vector3d deltaVV, double UT, Orbit orbit) {
-	    orbit.Perturb(deltaVV, UT);
 	}
 
 	// Physics update
@@ -188,7 +183,7 @@ namespace PersistentThrust {
 		    var demandsOut = ApplyDemands(demands, ref depleted);
 		    // Apply deltaV vector at UT & dT to orbit if resources not depleted
 		    if (!depleted) {
-			ApplyDeltaVV(deltaVV, UT, this.vessel.orbit);
+			vessel.orbit.Perturb(deltaVV, UT);
 		    }
 		    // Otherwise log warning and drop out of timewarp if throttle on & depleted
 		    else if (ThrottlePersistent > 0) {
