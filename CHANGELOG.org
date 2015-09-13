@@ -1,6 +1,7 @@
 * v1.0.2
 - Modularized the physics update in OnFixedUpdate so that intermediate
   methods calculate and apply the delta-V and resource consumption.
+- Intermediate methods are virtual so they can be refined.
 - The Orbit.Perturb method didn't use time step size, so it's removed.
 * v1.0.1
 - SolarSailPart now just doesn't perturb the orbit when the vessel
