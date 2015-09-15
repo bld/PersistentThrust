@@ -43,7 +43,7 @@ namespace PersistentThrust {
 	// Propellant data
 	public List<PersistentPropellant> pplist;
 	// Average density of propellants
-	double densityAverage;
+	public double densityAverage;
 
 	// Update
 	public override void OnUpdate() {
