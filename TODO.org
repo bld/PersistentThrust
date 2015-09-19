@@ -69,3 +69,7 @@
 ** TODO Apply a reduced deltaV
 ** TODO Flag depletion
 * TODO Do we want to calculate PersistentThrust as a function of PersistentThrottle, minThrust, and maxThrust? :FEATURE:
+* TODO Make PersistentEngine a separate addon that uses existing ModuleEngines* module [0/1] :FEATURE:
+** TODO Add "engine" field to class
+** TODO Make class inherit PartModule
+** TODO Use "engine" field instead of direct fields
