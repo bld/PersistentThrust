@@ -11,6 +11,8 @@ namespace PersistentThrust {
 	// Flag to activate force if it isn't to allow overriding stage activation
 	[KSPField(isPersistant = true)]
 	bool IsForceActivated;
+	// Flag if using PersistentEngine features
+	public bool IsPersistentEngine = false;
 	// Flag whether to request massless resources
 	public bool RequestPropMassless = false;
 	// Flag whether to request resources with mass
@@ -54,6 +56,7 @@ namespace PersistentThrust {
 	    foreach (PartModule pm in part.Modules) {
 		if (pm is ModuleEngines) {
 		    engine = pm as ModuleEngines;
+		    IsPersistentEngine = true;
 		} else {
 		    Debug.Log("No ModuleEngine found.");
 		}
@@ -66,27 +69,30 @@ namespace PersistentThrust {
 	// Update
 	public override void OnUpdate() {
 
-	    // When transitioning from timewarp to real update throttle
-	    if (warpToReal) {
-		vessel.ctrlState.mainThrottle = ThrottlePersistent;
-		warpToReal = false;
-	    }
-	    
-	    // Persistent thrust GUI
-	    Fields["Thrust"].guiActive = isEnabled;
-	    Fields["Isp"].guiActive = isEnabled;
-	    Fields["Throttle"].guiActive = isEnabled;
+	    if (IsPersistentEngine) {
 
-	    // Update display values
-	    Thrust = Utils.FormatThrust(thrust_d);
-	    Isp = Math.Round(isp_d, 2).ToString() + " s";
-	    Throttle = Math.Round(throttle_d * 100).ToString() + "%";
-
-	    // Activate force if engine is enabled and operational
-	    if (!IsForceActivated && engine.isEnabled && engine.isOperational)
-	    {
-		IsForceActivated = true;
-		part.force_activate();
+		// When transitioning from timewarp to real update throttle
+		if (warpToReal) {
+		    vessel.ctrlState.mainThrottle = ThrottlePersistent;
+		    warpToReal = false;
+		}
+		
+		// Persistent thrust GUI
+		Fields["Thrust"].guiActive = isEnabled;
+		Fields["Isp"].guiActive = isEnabled;
+		Fields["Throttle"].guiActive = isEnabled;
+		
+		// Update display values
+		Thrust = Utils.FormatThrust(thrust_d);
+		Isp = Math.Round(isp_d, 2).ToString() + " s";
+		Throttle = Math.Round(throttle_d * 100).ToString() + "%";
+		
+		// Activate force if engine is enabled and operational
+		if (!IsForceActivated && engine.isEnabled && engine.isOperational)
+		{
+		    IsForceActivated = true;
+		    part.force_activate();
+		}
 	    }
 	}
 
@@ -98,12 +104,15 @@ namespace PersistentThrust {
 
 	    // Populate engine and engineFX fields
 	    FindModuleEngines();
-	    
-	    // Initialize PersistentPropellant list
-	    pplist = PersistentPropellant.MakeList(engine.propellants);
 
-	    // Initialize density of propellant used in deltaV and mass calculations
-	    densityAverage = pplist.AverageDensity();
+	    if (IsPersistentEngine) {
+	    
+		// Initialize PersistentPropellant list
+		pplist = PersistentPropellant.MakeList(engine.propellants);
+		
+		// Initialize density of propellant used in deltaV and mass calculations
+		densityAverage = pplist.AverageDensity();
+	    }
 	}
 
 	void UpdatePersistentParameters () {
@@ -176,7 +185,7 @@ namespace PersistentThrust {
 
 	// Physics update
 	public override void OnFixedUpdate() {
-	    if (FlightGlobals.fetch != null && isEnabled) {
+	    if (IsPersistentEngine && FlightGlobals.fetch != null && isEnabled) {
 		// Time step size
 		var dT = TimeWarp.fixedDeltaTime;
 		
