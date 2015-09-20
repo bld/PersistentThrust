@@ -25,6 +25,13 @@
 ** DONE ApplyDemands
 ** DONE CalculateDeltaVV
 ** DONE ApplyDeltaVV
+* DONE Make PersistentEngine a separate addon that uses existing ModuleEngines* module [6/6] :FEATURE:
+** DONE Add "engine" field to PersistentEngine class
+** DONE Make class inherit PartModule
+** DONE Use "engine" field instead of direct fields
+** DONE Make module search vessel for ModuleEngine* module
+** DONE Update ion engine config to add PersistentEngine instead of replace ModuleEnginesFX
+** DONE Disable persistent features when ModuleEngine not found
 * TODO Realistic sail attitude control				   :WISHLIST:
 ** Vanes to cause solar torque about CM
 ** Gimbaled boom to shift CM
@@ -69,10 +76,3 @@
 ** TODO Apply a reduced deltaV
 ** TODO Flag depletion
 * TODO Do we want to calculate PersistentThrust as a function of PersistentThrottle, minThrust, and maxThrust? :FEATURE:
-* TODO Make PersistentEngine a separate addon that uses existing ModuleEngines* module [5/6] :FEATURE:
-** DONE Add "engine" field to PersistentEngine class
-** DONE Make class inherit PartModule
-** DONE Use "engine" field instead of direct fields
-** DONE Make module search vessel for ModuleEngine* module
-** DONE Update ion engine config to add PersistentEngine instead of replace ModuleEnginesFX
-** TODO Disable persistent features when ModuleEngine not found
