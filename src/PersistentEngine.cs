@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace PersistentThrust {
     
-    public class PersistentEngine : ModuleEnginesFX {
+    public class PersistentEngine : PartModule {
 
 	// Flag to activate force if it isn't to allow overriding stage activation
 	[KSPField(isPersistant = true)]
@@ -26,6 +26,10 @@ namespace PersistentThrust {
 	// Throttle
 	[KSPField(guiActive = true, guiName = "Throttle")]
 	protected string Throttle = "";
+
+	// Engine module on the same part
+	public ModuleEngines engine;
+	ModuleEnginesFX engineFX;
 	
 	// Numeric display values
 	protected double thrust_d = 0;
@@ -45,6 +49,20 @@ namespace PersistentThrust {
 	// Average density of propellants
 	public double densityAverage;
 
+	// Make "engine" and "engineFX" fields refer to the ModuleEngines and ModuleEnginesFX modules in part.Modules
+	void FindModuleEngines () {
+	    foreach (PartModule pm in part.Modules) {
+		if (pm is ModuleEngines) {
+		    engine = pm as ModuleEngines;
+		} else {
+		    Debug.Log("No ModuleEngine found.");
+		}
+		if (pm is ModuleEnginesFX) {
+		    engineFX = pm as ModuleEnginesFX;
+		}
+	    }
+	}
+	
 	// Update
 	public override void OnUpdate() {
 
@@ -65,7 +83,7 @@ namespace PersistentThrust {
 	    Throttle = Math.Round(throttle_d * 100).ToString() + "%";
 
 	    // Activate force if engine is enabled and operational
-	    if (!IsForceActivated && isEnabled && isOperational)
+	    if (!IsForceActivated && engine.isEnabled && engine.isOperational)
 	    {
 		IsForceActivated = true;
 		part.force_activate();
@@ -78,8 +96,11 @@ namespace PersistentThrust {
 	    // Run base OnLoad method
 	    base.OnLoad(node);
 
+	    // Populate engine and engineFX fields
+	    FindModuleEngines();
+	    
 	    // Initialize PersistentPropellant list
-	    pplist = PersistentPropellant.MakeList(propellants);
+	    pplist = PersistentPropellant.MakeList(engine.propellants);
 
 	    // Initialize density of propellant used in deltaV and mass calculations
 	    densityAverage = pplist.AverageDensity();
@@ -88,13 +109,13 @@ namespace PersistentThrust {
 	void UpdatePersistentParameters () {
 	    // Update values to use during timewarp
 	    // Update thrust calculation
-	    this.CalculateThrust();
+	    engine.CalculateThrust();
 	    // Get Isp
-	    IspPersistent = realIsp;
+	    IspPersistent = engine.realIsp;
 	    // Get throttle
 	    ThrottlePersistent = vessel.ctrlState.mainThrottle;
 	    // Get final thrust
-	    ThrustPersistent = this.finalThrust;
+	    ThrustPersistent = engine.finalThrust;
 	}
 
 	// Calculate demands of each resource
