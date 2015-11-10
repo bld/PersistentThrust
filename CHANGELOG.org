@@ -1,3 +1,7 @@
+* v1.0.4
+- PersistentEngine now a PartModule, not ModuleEngines; it finds all ModuleEngines on the part and uses them
+- PersistentEngine disabled if no ModuleEngines found on the part
+- The ion engine patch now matches to module ModuleEnginesFX, due to the same change in KSP 1.0.5
 * v1.0.3
 - Made densityAverage public for external use
 * v1.0.2
