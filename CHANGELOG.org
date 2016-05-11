@@ -1,3 +1,6 @@
+* v1.0.6
+- Updated and tested to compile and run with KSP 1.1
+- Added DLLs to compile with KSP 1.1: KSPUtil and UnityEngine.UI
 * v1.0.4
 - PersistentEngine now a PartModule, not ModuleEngines; it finds all ModuleEngines on the part and uses them
 - PersistentEngine disabled if no ModuleEngines found on the part
