@@ -117,8 +117,6 @@ namespace PersistentThrust {
 
 	void UpdatePersistentParameters () {
 	    // Update values to use during timewarp
-	    // Update thrust calculation
-	    engine.CalculateThrust();
 	    // Get Isp
 	    IspPersistent = engine.realIsp;
 	    // Get throttle

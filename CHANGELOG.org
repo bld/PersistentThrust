@@ -1,5 +1,6 @@
 * v1.0.6
 - Recompiled with KSP 1.1.3
+- Fixed bug where thrust (and propellant usage) was being applied twice
 * v1.0.5
 - Updated and tested to compile and run with KSP 1.1
 - Added DLLs to compile with KSP 1.1: KSPUtil and UnityEngine.UI
