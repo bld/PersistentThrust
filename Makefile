@@ -26,7 +26,7 @@ build: build/PersistentThrust.dll
 build/%.dll: ${SRCFILES}
 	mkdir -p build
 	${GMCS} -t:library -lib:"${MANAGED}" \
-		-r:Assembly-CSharp,Assembly-CSharp-firstpass,UnityEngine,KSPUtil,UnityEngine.UI \
+		-r:Assembly-CSharp,Assembly-CSharp-firstpass,UnityEngine,UnityEngine.UI \
 		-out:$@ \
 		${SRCFILES}
 
