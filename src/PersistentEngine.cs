@@ -43,6 +43,9 @@ namespace PersistentThrust {
 	public float ThrustPersistent = 0;
 	public float ThrottlePersistent = 0;
 
+    // Keep track of number of physics ticks skipped
+	public int skipCounter = 0;
+
 	// Are we transitioning from timewarp to reatime?
 	bool warpToReal = false;
 
@@ -58,7 +61,7 @@ namespace PersistentThrust {
 		    engine = pm as ModuleEngines;
 		    IsPersistentEngine = true;
 		} else {
-		    Debug.Log("No ModuleEngine found.");
+            Debug.Log("[PersistentThrust] No ModuleEngine found.");
 		}
 		if (pm is ModuleEnginesFX) {
 		    engineFX = pm as ModuleEnginesFX;
@@ -116,6 +119,12 @@ namespace PersistentThrust {
 	}
 
 	void UpdatePersistentParameters () {
+		// skip some ticks
+		if (skipCounter++ < 15) return;
+
+	    // we are on the 16th tick
+		skipCounter = 0;
+
 	    // Update values to use during timewarp
 	    // Get Isp
 	    IspPersistent = engine.realIsp;
@@ -154,6 +163,7 @@ namespace PersistentThrust {
 		    // For the moment, just let the full deltaV for time segment dT be applied
 		    if (demandOut == 0) {
 			depleted = true;
+            Debug.Log(String.Format("[PersistentThrust] Part {0} failed to request {1} {2}", part.name, demands[i], pp.propellant.name));
 		    }
 		}
 		// Otherwise demand is 0
@@ -215,10 +225,11 @@ namespace PersistentThrust {
 		    }
 		    // Otherwise log warning and drop out of timewarp if throttle on & depleted
 		    else if (ThrottlePersistent > 0) {
-			Debug.Log("Propellant depleted");
-			// Return to realtime
-			TimeWarp.SetRate(0, true);
-		    }
+            Debug.Log("[PersistentThrust] Thrust warp stopped - propellant depleted");
+            ScreenMessages.PostScreenMessage("Thrust warp stopped - propellant depleted", 5.0f, ScreenMessageStyle.UPPER_CENTER);
+            // Return to realtime
+            TimeWarp.SetRate(0, true);
+            }
 		}
 		// Otherwise, if suborbital, set throttle to 0 and show error message
 		// TODO fix persistent thrust orbit perturbation on suborbital trajectory
