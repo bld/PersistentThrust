@@ -1,13 +1,14 @@
 # Makefile for building PersistentThrust
 
-KSPDIR	:= ${HOME}/.local/share/Steam/steamapps/common/Kerbal Space Program
+#KSPDIR	:= ${HOME}/.local/share/Steam/steamapps/common/Kerbal Space Program
+KSPDIR	:= ${HOME}/.steam/steam/steamapps/common/Kerbal Space Program
 MANAGED	:= ${KSPDIR}/KSP_Data/Managed/
 SRCFILES := src/Extensions.cs \
 	src/SolarSailPart.cs \
 	src/Utils.cs \
 	src/Propellant.cs \
 	src/PersistentEngine.cs
-GMCS	:= gmcs
+MCS	:= mcs
 TAR	:= tar
 ZIP	:= zip
 
@@ -15,7 +16,7 @@ all: build
 
 info:
 	@echo "== PersistentThrust Build Information =="
-	@echo "  gmcs:    ${GMCS}"
+	@echo "  gmcs:    ${MCS}"
 	@echo "  tar:     ${TAR}"
 	@echo "  zip:     ${ZIP}"
 	@echo "  KSP Data: ${KSPDIR}"
@@ -25,7 +26,7 @@ build: build/PersistentThrust.dll
 
 build/%.dll: ${SRCFILES}
 	mkdir -p build
-	${GMCS} -t:library -lib:"${MANAGED}" \
+	${MCS} -t:library -lib:"${MANAGED}" \
 		-r:Assembly-CSharp,Assembly-CSharp-firstpass,UnityEngine,UnityEngine.UI \
 		-out:$@ \
 		${SRCFILES}
