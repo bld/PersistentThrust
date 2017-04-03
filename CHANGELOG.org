@@ -1,3 +1,6 @@
+* v1.0.8
+- Update persistent thrust parameters only every 16th physics tick +some logging
+- Updated location of KSP Steam directory. Updated Mono compiler to mcs. Load ionEngine patch after NFP to keep realistic maxthrust and electriccharge ratio.
 * v1.0.7
 - Updated to compile with KSP 1.2
 * v1.0.6
