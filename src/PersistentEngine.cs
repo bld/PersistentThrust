@@ -18,7 +18,10 @@ namespace PersistentThrust {
 	// Flag whether to request resources with mass
 	public bool RequestPropMass = true;
 	
-	// GUI display values
+	// GUI
+	// Enable/disable persistent engine features
+	[KSPField(isPersistant = true, guiActive = true, guiActiveEditor = true, guiName = "Persistent"), UI_Toggle(disabledText = "Disabled", enabledText = "Enabled")]
+	public bool PersistentEnabled = false;
 	// Thrust
 	[KSPField(guiActive = true, guiName = "Thrust")]
 	protected string Thrust = "";
@@ -43,7 +46,7 @@ namespace PersistentThrust {
 	public float ThrustPersistent = 0;
 	public float ThrottlePersistent = 0;
 
-    // Keep track of number of physics ticks skipped
+	// Keep track of number of physics ticks skipped
 	public int skipCounter = 0;
 
 	// Are we transitioning from timewarp to reatime?
@@ -72,7 +75,7 @@ namespace PersistentThrust {
 	// Update
 	public override void OnUpdate() {
 
-	    if (IsPersistentEngine) {
+	    if (IsPersistentEngine && PersistentEnabled) {
 
 		// When transitioning from timewarp to real update throttle
 		if (warpToReal) {
@@ -119,8 +122,8 @@ namespace PersistentThrust {
 	}
 
 	void UpdatePersistentParameters () {
-		// skip some ticks
-		if (skipCounter++ < 15) return;
+            // skip some ticks
+	    if (skipCounter++ < 15) return;
 
 	    // we are on the 16th tick
 		skipCounter = 0;
@@ -193,7 +196,7 @@ namespace PersistentThrust {
 
 	// Physics update
 	public override void OnFixedUpdate() {
-	    if (IsPersistentEngine && FlightGlobals.fetch != null && isEnabled) {
+            if (IsPersistentEngine && FlightGlobals.fetch != null && isEnabled && PersistentEnabled) {
 		// Time step size
 		var dT = TimeWarp.fixedDeltaTime;
 		
@@ -225,11 +228,11 @@ namespace PersistentThrust {
 		    }
 		    // Otherwise log warning and drop out of timewarp if throttle on & depleted
 		    else if (ThrottlePersistent > 0) {
-            Debug.Log("[PersistentThrust] Thrust warp stopped - propellant depleted");
-            ScreenMessages.PostScreenMessage("Thrust warp stopped - propellant depleted", 5.0f, ScreenMessageStyle.UPPER_CENTER);
-            // Return to realtime
-            TimeWarp.SetRate(0, true);
-            }
+			Debug.Log("[PersistentThrust] Thrust warp stopped - propellant depleted");
+			ScreenMessages.PostScreenMessage("Thrust warp stopped - propellant depleted", 5.0f, ScreenMessageStyle.UPPER_CENTER);
+			// Return to realtime
+			TimeWarp.SetRate(0, true);
+		    }
 		}
 		// Otherwise, if suborbital, set throttle to 0 and show error message
 		// TODO fix persistent thrust orbit perturbation on suborbital trajectory

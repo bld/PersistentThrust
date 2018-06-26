@@ -37,7 +37,7 @@
 ** Gimbaled boom to shift CM
 ** Realistic moments of inertia (i.e. BIG)
 ** IKAROS style thin film reflective control devices
-* TODO Make new solar sail models [0/5]			   :WISHLIST:FEATURE:
+* TODO [0/5] Make new solar sail models [0/5]              :WISHLIST:FEATURE:
 ** TODO Square sail (LightSail, Lunar Flashlight, NEA Scout)
 *** 4 triangular panels with billowed shape
 *** Wrinkled looking surface
@@ -51,7 +51,7 @@
 *** Animated rotation
 **** Scale rotation speed to sensible amount during time warp
 *** Animate change in reflective control device color as it performs attitude maneuvers
-* TODO Make TweakScale work with parts [0/2]			    :FEATURE:
+* TODO [0/2] Make TweakScale work with parts [0/2]                  :FEATURE:
 ** TODO Solar sail
 ** TODO Ion engine
 * TODO With solar electric ion engine spacecraft, batteries deplete in high timewarp, even though the panels generate enough ElectricCharge [1/2] :BUG:
@@ -62,17 +62,18 @@
 ** At 100x and 1000x, batteries a little low
 ** At 1000x, batteries ~50%
 ** At max warp, batteries deplete, but vessel doesn't shutdown
-* TODO In timewarp, persistent engines lower a suborbital engine when they should be raising it [1/2] :BUG:
+* TODO [1/2] In timewarp, persistent engines lower a suborbital engine when they should be raising it [1/2] :BUG:
 ** DONE Temporary fix: throw error message when suborbital & in timewarp, don't perturb orbit
 ** TODO Make it work
 * TODO Add GUI window that shows propellant data [0/3] 		    :FEATURE:
 ** TODO Button in main GUI to toggle
 ** TODO List of propellant names
 ** TODO List of propellant rates
-* TODO Test if resource wasn't fully requested (demandOut < demand) [0/6] :FEATURE:BUG:
+* TODO [0/5] Test if resource wasn't fully requested (demandOut < demand) [0/5] :FEATURE:BUG:
 ** TODO Test to make sure demandOut always == demand during normal operation
 ** TODO Scale mass change dm to ratio of demandOut/demand
 ** TODO Ensure a similar ratio of other propellants was applied
 ** TODO Apply a reduced deltaV
 ** TODO Flag depletion
 * TODO Do we want to calculate PersistentThrust as a function of PersistentThrottle, minThrust, and maxThrust? :FEATURE:
+* DONE Make all engines use PersistentEngine, and provide a toggle button to enble it per engine
